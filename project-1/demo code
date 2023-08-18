@@ -1,0 +1,225 @@
+package skm;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/EmployeeServlet")
+public class EmployeeServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	final String url = "jdbc:postgresql://192.168.110.48:5432/plf_training";
+	final String username = "plf_training_admin";
+	final String password = "pff123";
+	Connection conn = null;
+
+	/*
+	 * protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+	 * IOException { // TODO Auto-generated method stub // response.setContentType("text/html"); //
+	 * response.getWriter().append("Served at: ").append(request.getContextPath()); //
+	 * response.getWriter().append("\n this is raju"); // ArrayList<Employee789> al=new ArrayList<>(); Employee789 e1;
+	 * try { Class.forName("org.postgresql.Driver"); conn = DriverManager.getConnection(url, username, password);
+	 * PrintWriter out = response.getWriter(); // if (conn == null) { //
+	 * out.println("Connected to the PostgreSQL database!"); // // response.getWriter().append("\n this is raju"); // //
+	 * } else { // out.println("Failed to connect to the database."); // } //
+	 * response.getWriter().append("\n this is raju"); String selectQuery = "SELECT * FROM Employee789"; Statement stmt
+	 * = conn.createStatement(); // PreparedStatement selectStmt = conn.prepareStatement(selectQuery); ResultSet
+	 * resultSet = stmt.executeQuery(selectQuery);
+	 * 
+	 * /*while (resultSet.next()) { int empNo = resultSet.getInt("empno"); String empName =
+	 * resultSet.getString("empname"); String job = resultSet.getString("job"); double salary =
+	 * resultSet.getDouble("salary"); String department = resultSet.getString("department"); // e1=new
+	 * Employee789(empNo,empName,job,salary,department); // al.add(e1); response.setContentType("text/html");
+	 * out.println("<html><body>");
+	 * 
+	 * out.println("<table>"); out.println("<tr><td>Employee No:</td><td>" + empNo + "</td></tr>");
+	 * out.println("<tr><td>Employee Name:</td><td>" + empName + "</td></tr>");
+	 * out.println("<tr><td>Job Designation:</td><td>" + job + "</td></tr>"); out.println("<tr><td>Salary:</td><td>" +
+	 * salary + "</td></tr>"); out.println("<tr><td>Department:</td><td>" + department + "</td></tr>");
+	 * out.println("</table>");
+	 * 
+	 * out.println("</body></html>"); } conn.close(); } catch (Exception e) { e.printStackTrace(); }
+	 * 
+	 * }
+	 */
+	/*
+	 * protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+	 * IOException { try { int empNo = Integer.parseInt(request.getParameter("empNo")); String empName =
+	 * request.getParameter("empName"); String job = request.getParameter("job"); double salary =
+	 * Double.parseDouble(request.getParameter("salary")); String department = request.getParameter("department"); //
+	 * loading th driver Class.forName("org.postgresql.Driver"); conn = DriverManager.getConnection(url, username,
+	 * password); // insert query String insertQuery =
+	 * "INSERT INTO Employee789 (empNo, empName, job, salary, department) VALUES (?, ?, ?, ?, ?)"; PreparedStatement pt
+	 * = conn.prepareStatement(insertQuery); pt.setInt(1, empNo); pt.setString(2, empName); pt.setString(3, job);
+	 * pt.setDouble(4, salary); pt.setString(5, department);
+	 * 
+	 * int rowsInserted = pt.executeUpdate(); // Execute the INSERT statement
+	 * 
+	 * if (rowsInserted > 0) { response.getWriter().write("Employee added successfully."); } else {
+	 * response.getWriter().write("Failed to add employee."); }
+	 * 
+	 * pt.close(); // Close the PreparedStatement conn.close(); // Respond with a success message
+	 * //response.getWriter().write("Employee added successfully."); } catch (Exception e) {
+	 * response.getWriter().write("Error adding employee."); } }
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String action = request.getParameter("action");
+
+		if ("delete".equals(action)) {
+			deleteEmployee(request, response);
+		} else {
+			// Handle other actions like adding or editing
+		}
+	}
+
+	private void deleteEmployee(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		try {
+			int empNo = Integer.parseInt(request.getParameter("empNo"));
+
+			// Load the driver and establish the connection
+
+			String deleteQuery = "DELETE FROM Employee789 WHERE empNo = ?";
+			try (PreparedStatement pt = conn.prepareStatement(deleteQuery)) {
+				pt.setInt(1, empNo);
+
+				int rowsDeleted = pt.executeUpdate();
+
+				if (rowsDeleted > 0) {
+					response.getWriter().write("Employee deleted successfully.");
+				} else {
+					response.getWriter().write("Failed to delete employee.");
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				response.getWriter().write("Error deleting employee.");
+			}
+
+			// Close the connection
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.getWriter().write("Error deleting employee.");
+		}
+	}
+
+}
+
+
+
+
+/**********************************************************************************************************/
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  .container {
+    position: relative;
+  }
+  
+  #choice {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+</style>
+<!-- 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#addButton").click(function() {
+                var data = $(".dataInput").val();
+
+                $.ajax({
+                    type: "POST",
+                    url: "EmployeeServlet",
+                    data: { data: data },
+                    success: function(response) {
+                        alert(response);
+                    }
+                });
+            });
+        });
+    </script>
+    -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#addButton").click(function(e) {
+                e.preventDefault(); // Prevent form submission
+                
+                var empNo = $("#empNo").val();
+                var empName = $("#empName").val();
+                var job = $("#job").val();
+                var salary = $("#salary").val();
+                var department = $("#department").val();
+
+                $.ajax({
+                    type: "POST",
+                    url: "EmployeeServlet",
+                    data: {
+                        empNo: empNo,
+                        empName: empName,
+                        job: job,
+                        salary: salary,
+                        department: department
+                    },
+                    success: function(response) {
+                        alert(response); // Display the response from the servlet
+                        // Optionally, you can clear the form fields here
+                    },
+                    error: function() {
+                        alert("Error adding employee.");
+                    }
+                });
+            });
+            
+            $("#delButton").click(function(e) {
+                e.preventDefault(); // Prevent form submission
+                $("#action").val("delete"); // Set the action to "delete"
+                $("#employeeForm").submit(); // Submit the form
+            });
+        });
+    </script>
+</head>
+<body>
+  <center>
+    <div class="container">
+      <form action="EmployeeServlet" method="post">
+      <div class="dataInput">
+        <label for="empNo">Employee No:</label>
+        <input type="text" name="empNo" id="empNo" required><br><br>
+
+        <label for="empName">Employee Name:</label>
+        <input type="text" name="empName" id="empName" required><br><br>
+
+        <label for="job">Job Designation:</label>
+        <input type="text" name="job" id="job" required><br><br>
+
+        <label for="salary">Salary:</label>
+        <input type="text" name="salary" id="salary" required><br><br>
+
+        <label for="department">Department:</label>
+        <input type="text" name="department" id="department" required><br><br>
+        </div>
+ 
+
+        <button type="submit" id="addButton">Add</button>
+        <button type="submit" id="delButton">del</button>
+        <button type="submit" id="editButton">edit</button>
+ 
+      </form>
+    </div>
+  </center>
+</body>
+</html>
